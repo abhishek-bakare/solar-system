@@ -5,6 +5,11 @@ on:
             - main
             - 'feature/*'
 
+env:
+    MONGO_URI: 'mongodb+srv://superuser.ss7kolf.mongodb.net/solar-system'
+    MONGO_USERNAME: ${{ vars.MONGO_USERNAME }}               
+    MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+    
 jobs:
     unit-testing:
         name: This is unit testing
