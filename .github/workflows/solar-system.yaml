@@ -40,6 +40,7 @@ jobs:
 
             - name: Upload a file               # upload test cases file
               uses: actions/upload-artifact@v4
+              if: matrix.nodejs_versions == '18'
               with:
                 name: test-result
                 path: test-results.xml
