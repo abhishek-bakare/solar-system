@@ -47,9 +47,9 @@ jobs:
               run: npm test
 
             - name: Upload a file               # upload test cases file
+              if: ${{ matrix.nodejs_versions }} == '18'   
               uses: actions/upload-artifact@v3
-              # always run this step if earlier step is failure or success
-              if: ${{ matrix.nodejs_versions }} == '18'                     
+              # always run this step if earlier step is failure or success                    
               with:
                 name: test-result
                 path: test-results.xml
