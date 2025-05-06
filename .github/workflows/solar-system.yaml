@@ -16,7 +16,7 @@ jobs:
         name: This is unit testing
         strategy:
             matrix:
-                nodejs_versions: [18, 19, 20]
+                nodejs_versions: [18, 20]
                 os: [ubuntu-latest, macos-latest]
                 exclude:
                     - nodejs_versions: 18
@@ -32,15 +32,23 @@ jobs:
               with:
                 node-version: ${{ matrix.nodejs_versions }}
             
+            - name: Cache dependencies
+              uses: actions/cache@v4
+              with: 
+                path: node_modules
+                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}     
+            
             - name: Install dependencies
               run: npm install
               
             - name: Unit testing
+              id: unit-testing-cmd              # we can create & use this id as a conditions or logics in other steps   
               run: npm test
 
             - name: Upload a file               # upload test cases file
               uses: actions/upload-artifact@v4
-              if: matrix.nodejs_versions == '18'
+              # always run this step if earlier step is failure or success
+              if: always()                      
               with:
                 name: test-result
                 path: test-results.xml
@@ -56,6 +64,12 @@ jobs:
           uses: actions/setup-node@v3
           with:
             nodejs_versions: 18
+
+        - name: Cache dependencies
+          uses: actions/cache@v4
+          with:
+            path: node_modules
+            key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}    
             
         - name: Install dependencies
           run: npm install
