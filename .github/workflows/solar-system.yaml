@@ -65,7 +65,7 @@ jobs:
         - name: Install nodejs
           uses: actions/setup-node@v3
           with:
-            nodejs_versions: 18
+            node_versions: 18
 
         - name: Cache dependencies
           uses: actions/cache@v4
