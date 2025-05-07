@@ -88,7 +88,7 @@ jobs:
             retention-days: 5       # retention period of 5 days 
 
     docker-login:
-      name: Docker login using DOcker actions
+      name: Docker login using Docker actions
       needs: [unit-testing, code-coverage]
       runs-on: ubuntu-latest
       steps:
@@ -100,6 +100,28 @@ jobs:
           with:
             username: ${{ vars.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
+
+        - name: Build the image
+          uses: docker/build-push-actions@v6
+          with:
+            context: .                            # define the place of dockefile . means current dir
+            push: false
+            tags: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+            
+        - name: Before pushing lets do testing
+          run: |
+            docker images
+            docker run -d --name solar-system-app -p 3000:3000 -e MONGO_URI=mongodb+srv://supercluster.d83jj.mongodb.net/superData \
+              -e MONGO_USERNAME=$vars.MONGO_USERNAME \
+              -e MONGO_PASSWORD=$secrets.MONGO_PASSWORD \
+              ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+            export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' solar-system-app)
+            echo $IP
+            echo Testing image using whet......
+            wget -q -o - 127.0.0.1:3000/live | grep live
+            curl http://127.0.0.1:3000/live 
+
+
 
 
 
