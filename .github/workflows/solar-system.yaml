@@ -89,13 +89,14 @@ jobs:
 
     docker-login:
       name: Docker login using DOcker actions
+      needs: [unit-testing, code-coverage]
       runs-on: ubuntu-latest
       steps:
         - name: Checkout
           uses: actions/checkout@v4
           
         - name: Docker login
-          uses: docker/login-action@v4
+          uses: docker/login-action@v3
           with:
             username: ${{ vars.DOCKER_USERNAME }}
             password: ${{ secrets.DOCKER_PASSWORD }}
