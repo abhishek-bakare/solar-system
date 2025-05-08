@@ -14,6 +14,15 @@ env:
 jobs:
     unit-testing:
         name: This is unit testing
+        services:
+          mongo-db:
+            image: siddharth67/mongo-db:non-prod
+            ports:
+                - 27017:27017
+        env:
+            MONGO_URI: 'mongodb://localhost:27017/superData'
+            MONGO_USERNAME: non-prod-user                             
+            MONGO_PASSWORD: non-prod-password       # this needs to be secrets
         strategy:
             matrix:
                 nodejs_versions: [18, 20]
@@ -86,53 +95,3 @@ jobs:
             name: coverage-report
             path: coverage
             retention-days: 5       # retention period of 5 days 
-
-    docker-login:
-      name: Docker login using Docker actions
-      permissions:                  # permissions for GITHUB TOKEN, default is read
-        packages: write             # we have added write also
-      needs: [unit-testing, code-coverage]
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-          
-        - name: Docker login
-          uses: docker/login-action@v3
-          with:
-            username: ${{ vars.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
-
-        - name: GHCR login (github containerRegistry)
-          uses: docker/login-action@v6  
-          with:
-            registry: ghcr.io
-            username: ${{ github.repository_owner }}
-            password: ${{ secrets.GITHUB_TOKEN }}    
-
-        - name: Build the image & push to hub
-          uses: docker/build-push-action@v6
-          with:
-            context: .                            # define the place of dockefile . means current dir
-            push: true                           # false: don't push image
-            tags: |
-              ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}          
-              ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} 
-            #to push to the dockerhub         
-            #this will push to the ghcr.io cr
-            
-        - name: Before pushing lets do testing
-          continue-on-error: true      
-          run: |
-            docker images
-            docker run -it --name solar-system-app -d -p 3000:3000 -e MONGO_URI=$MONGO_URI -e MONGO_USERNAME=$MONGO_USERNAME -e MONGO_PASSWORD=$MONGO_PASSWORD $env.DOCKER_USERNAME/solar-system:latest
-            export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' solar-system-app)
-            echo $IP
-            echo Testing image using wget......
-            wget -q -o - 127.0.0.1:3000/live | grep live
-            curl http://127.0.0.1:3000/live 
-
-
-
-
-
