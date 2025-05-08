@@ -14,12 +14,12 @@ env:
 jobs:
     unit-testing:
         name: This is unit testing
-        services:
-          mongo-db:
+        services:                                   # service job container
+          mongo-db:                                 # name for the service cont
             image: siddharth67/mongo-db:non-prod
             ports:
                 - 27017:27017
-        env:
+        env:                                        # even if we defined env vars workflow level, job level has higher precedance
             MONGO_URI: 'mongodb://localhost:27017/superData'
             MONGO_USERNAME: non-prod-user                             
             MONGO_PASSWORD: non-prod-password       # this needs to be secrets
@@ -65,39 +65,50 @@ jobs:
                 path: test-results.xml
 
     code-coverage:
-      name: This is code coverage
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout 
-          uses: actions/checkout@v4
+        name: This is code coverage
+        container:                              # we using container job, so no need to install node on host os
+            image: node:18
+        services:                               # using the service for mongo. Both containers are running on same host os so it using same net bridge no need to configure networking bet them
+            mongo-db:                           # this is cont to cont so no need to setup ports
+                image: siddharth67/mongo-db:non-prod
+                options:
+                    --name mongo
+        env:                                        
+            MONGO_URI: 'mongodb://localhost:27017/superData'
+            MONGO_USERNAME: non-prod-user                             
+            MONGO_PASSWORD: non-prod-password          
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout 
+              uses: actions/checkout@v4
 
-        - name: Install nodejs
-          uses: actions/setup-node@v3
-          with:
-            node-version: 18
+            #- name: Install nodejs
+             # uses: actions/setup-node@v3
+              #with:
+               # node-version: 18
 
-        - name: Cache dependencies
-          uses: actions/cache@v4
-          with:
-            path: node_modules
-            key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}    
+            - name: Cache dependencies
+              uses: actions/cache@v4
+              with:
+                path: node_modules
+                key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}    
+                
+            - name: Install dependencies
+              run: npm install
             
-        - name: Install dependencies
-          run: npm install
-          
-        - name: Run coverage
-          continue-on-error: true  
-          run: npm run coverage
-          
-        - name: Archive coverage reports
-          uses: actions/upload-artifact@v4  
-          with:
-            name: coverage-report
-            path: coverage
-            retention-days: 5       # retention period of 5 days 
+            - name: Run coverage
+              continue-on-error: true  
+              run: npm run coverage
+            
+            - name: Archive coverage reports
+              uses: actions/upload-artifact@v4  
+              with:
+                name: coverage-report
+                path: coverage
+                retention-days: 5       # retention period of 5 days 
 
     docker-login:
-      name: Docker login using Docker actions
+      name: Containerization
       permissions:                  # permissions for GITHUB TOKEN, default is read
         packages: write             # we have added write also
       needs: [unit-testing, code-coverage]
