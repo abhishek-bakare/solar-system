@@ -130,27 +130,44 @@ jobs:
             username: ${{ github.repository_owner }}
             password: ${{ secrets.GITHUB_TOKEN }}    
 
-        - name: Build the image & push to hub
-          uses: docker/build-push-action@v6
-          with:
-            context: .                            # define the place of dockefile . means current dir
-            push: true                           # false: don't push image
-            tags: |
-              ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}          
-              ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} 
+        #- name: Build the image & push to hub
+         # uses: docker/build-push-action@v6
+          #with:
+           # context: .                            # define the place of dockefile . means current dir
+           # push: true                           # false: don't push image
+            #tags: |
+             # ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}      
+              #ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} 
             #to push to the dockerhub         
             #this will push to the ghcr.io cr
+
+    dev-deploy:                                     # deploying to k8
+        runs-on: ubuntu-latest
+        needs: docker-login
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
             
-        - name: Before pushing lets do testing
-          continue-on-error: true      
-          run: |
-            docker images
-            docker run -it --name solar-system-app -d -p 3000:3000 -e MONGO_URI=$MONGO_URI -e MONGO_USERNAME=$MONGO_USERNAME -e MONGO_PASSWORD=$MONGO_PASSWORD $env.DOCKER_USERNAME/solar-system:latest
-            export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' solar-system-app)
-            echo $IP
-            echo Testing image using wget......
-            wget -q -o - 127.0.0.1:3000/live | grep live
-            curl http://127.0.0.1:3000/live 
+            - name: Install Kubectl CLI
+              uses: azure/setup-kubectl@v4
+              with:
+                version: 'v1.26.0'
+
+            - name: Setup kubeconfig                # before using kubectl we need to kubeconfig
+              uses: azure/k8s-set-context@v3
+              with:
+                method: kubeconfig
+                kubeconfig: ${{ secrets.KUBECONFIG }}  
+                
+            - name: Verifying kubectl
+              run: |
+                kubectl version --short
+                echo -------------------------------------------
+                kubectl get nodes      
+
+
+
+        
 
 
 
