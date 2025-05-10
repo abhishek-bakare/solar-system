@@ -144,6 +144,8 @@ jobs:
     dev-deploy:                                     # deploying to k8
         runs-on: ubuntu-latest
         needs: docker-login
+        outputs:
+          APP_INGRESS_URL: ${{ steps.set-ingress-host-id.outputs.APP_INGRESS_HOST }}
         steps:
             - name: checkout
               uses: actions/checkout@v4
@@ -175,7 +177,8 @@ jobs:
                 kubectl version --short
                 echo -------------------------------------------
                 kubectl get nodes   
-                
+            
+            #this varibles work on only in the same job cant use outside other jobs. 
             #- name: Save INGRESS controller IP as a Github env variable
              # run: |
               #  echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}") >> $GITHUB_ENV
@@ -202,7 +205,29 @@ jobs:
                    --save-config --dry-run=client -o yaml | kubectl apply -f -
 
             - name: Deploy to Dev env
-              run: kubectl apply -f kubernetes/development        
+              run: kubectl apply -f kubernetes/development
+            
+            # this is how we can define global variables & use it in other jobs
+            # here we set only id & above we st up outputs  
+            - name: Set app ingress URL
+              id: set-ingress-host-id
+              run: |
+                 echo "APP_INGRESS_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath="{.items[0].spec.tls[0].hosts[0]}")"  >> $GITHUB_ENV
+
+    integration-testing:
+      name: Integration testing in DEV
+      runs-on: ubuntu-latest
+      needs: dev-deploy
+      steps:
+        - name: Test URL output using curl & JQ
+        #this is how we fetch outputs
+          env:
+            URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
+          run:
+            echo $URL
+            echo "-------------------------------------------"
+            curl http://$URL/live -s -k | jq -r .status | grep -i live  
+
 
 
                   
