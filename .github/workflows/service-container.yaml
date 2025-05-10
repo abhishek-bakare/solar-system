@@ -176,9 +176,9 @@ jobs:
                 echo -------------------------------------------
                 kubectl get nodes   
                 
-            - name: Save INGRESS controller IP as a Github env variable
-              run: |
-                echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}") >> $GITHUB_ENV
+            #- name: Save INGRESS controller IP as a Github env variable
+             # run: |
+              #  echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}") >> $GITHUB_ENV
               
             # we can use this token and use it in files dynamically    
             - name: Replace token in manifest files
@@ -190,7 +190,7 @@ jobs:
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
                 IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
-                INGRESS_IP: ${{ env.INGRESS_IP }}
+                INGRESS_IP: a27e0c87b693b4d09a9291410f4e2d79-1532706329.us-east-1.elb.amazonaws.com
 
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
