@@ -130,14 +130,14 @@ jobs:
             username: ${{ github.repository_owner }}
             password: ${{ secrets.GITHUB_TOKEN }}    
 
-        #- name: Build the image & push to hub
-         # uses: docker/build-push-action@v6
-          #with:
-           # context: .                            # define the place of dockefile . means current dir
-           # push: true                           # false: don't push image
-            #tags: |
-             # ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}      
-              #ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} 
+        - name: Build the image & push to hub
+          uses: docker/build-push-action@v6
+          with:
+            context: .                            # define the place of dockefile . means current dir
+            push: true                           # false: don't push image
+            tags: |
+              ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}      
+              ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }} 
             #to push to the dockerhub         
             #this will push to the ghcr.io cr
 
@@ -153,17 +153,60 @@ jobs:
               with:
                 version: 'v1.26.0'
 
-            - name: Setup kubeconfig                # before using kubectl we need to kubeconfig
-              uses: azure/k8s-set-context@v3
+            #- name: Setup kubeconfig                # before using kubectl we need to kubeconfig
+             # uses: azure/k8s-set-context@v3
+              #with:
+               # method: kubeconfig
+                #kubeconfig: give as a screts
+
+            - name: Configure AWS cred
+              uses: aws-actions/configure-aws-credentials@v2
               with:
-                method: kubeconfig
-                kubeconfig: ${{ secrets.KUBECONFIG }}  
+                aws-access-key-id: AKIA5JMST476X7Q2HZXH
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+                role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
+                aws-region: us-east-1  
+                
+            - name: Update-kubeconfig
+              run: aws eks update-kubeconfig --name my-eks --region us-east-1  
                 
             - name: Verifying kubectl
               run: |
-                kubectl version
+                kubectl version --short
                 echo -------------------------------------------
-                kubectl get nodes      
+                kubectl get nodes   
+                
+            - name: Save INGRESS controller IP as a Github env variable
+              run: |
+                echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}") >> $GITHUB_ENV
+              
+            # we can use this token and use it in files dynamically    
+            - name: Replace token in manifest files
+              uses: cschleiden/replace-tokens@v1
+              with:
+                tokenPrefix: '_{_'
+                tokenSuffix: '_}_'
+                files: '["kubernetes/development/*.yaml"]'
+              env:
+                NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
+                IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
+                INGRESS_IP: ${{ env.INGRESS_IP }}
+
+            # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
+            - name: Creating MongoDB secrets
+              run: |
+                  kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds \
+                   --from-literal=MONGO_URI=${{ env.MONGO_URI }} \
+                   --from-literal=MONGO_USERNAME=${{ vars.MONGO_USERNAME }} \
+                   --from-literal=MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }} \
+                   --save-config --dry-run=client -o yaml | kubectl apply -f -
+
+            - name: Deploy to Dev env
+              run: kubectl apply -f kubernetes/development        
+
+
+                  
+
 
 
 
