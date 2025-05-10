@@ -164,7 +164,7 @@ jobs:
               with:
                 aws-access-key-id: AKIA5JMST476X7Q2HZXH
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-                role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
+                #role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
                 aws-region: us-east-1  
                 
             - name: Update-kubeconfig
