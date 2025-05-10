@@ -223,7 +223,7 @@ jobs:
         #this is how we fetch outputs
           env:
             URL: ${{ needs.dev-deploy.outputs.APP_INGRESS_URL }}
-          run:
+          run: |
             echo $URL
             echo "-------------------------------------------"
             curl http://$URL/live -s -k 
