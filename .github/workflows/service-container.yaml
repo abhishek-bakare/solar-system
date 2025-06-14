@@ -193,7 +193,7 @@ jobs:
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
                 IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
-                INGRESS_IP: acdbb6f0e496e4dea8c3a6cc594120ee-1925741136.us-east-1.elb.amazonaws.com
+                INGRESS_IP: af566080aee3c4c48ab46233f9c42a5d-1718393804.us-east-1.elb.amazonaws.com
 
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
