@@ -144,6 +144,9 @@ jobs:
     dev-deploy:                                     # deploying to k8
         runs-on: ubuntu-latest
         needs: docker-login
+        environment:
+          name: development
+          url: https://${{ steps.set-ingress-host-id.outputs.APP_INGRESS_HOST }}
         outputs:
           APP_INGRESS_URL: ${{ steps.set-ingress-host-id.outputs.APP_INGRESS_HOST }}
         steps:
