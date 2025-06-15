@@ -8,7 +8,7 @@ metadata:
   namespace: {NAMESPACE}
 spec:
     rules:
-    - host: af566080aee3c4c48ab46233f9c42a5d-1718393804.us-east-1.elb.amazonaws.com
+    - host: a5702e5d1d8bb42a1babc8d410a9dd6f-857755553.us-east-1.elb.amazonaws.com
       http:
         paths:
         - backend:
@@ -20,5 +20,5 @@ spec:
           pathType: Prefix
     tls:
     - hosts:
-      - af566080aee3c4c48ab46233f9c42a5d-1718393804.us-east-1.elb.amazonaws.com
+      - a5702e5d1d8bb42a1babc8d410a9dd6f-857755553.us-east-1.elb.amazonaws.com
       secretName: ingress-local-tls

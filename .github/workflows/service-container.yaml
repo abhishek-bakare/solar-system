@@ -144,9 +144,10 @@ jobs:
     dev-deploy:                                     # deploying to k8
         runs-on: ubuntu-latest
         needs: docker-login
-        environment:
+        environment:                                # here we added GitHub environment (we created env first)
           name: development
           url: https://${{ steps.set-ingress-host-id.outputs.APP_INGRESS_HOST }}
+
         outputs:
           APP_INGRESS_URL: ${{ steps.set-ingress-host-id.outputs.APP_INGRESS_HOST }}
         steps:
@@ -167,7 +168,7 @@ jobs:
             - name: Configure AWS cred
               uses: aws-actions/configure-aws-credentials@v2
               with:
-                aws-access-key-id: AKIAVRUVSKBNGB7DSXLD
+                aws-access-key-id: AKIA6ODU5VSZTOUP4Q4O
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
                 #role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
                 aws-region: us-east-1  
@@ -196,7 +197,7 @@ jobs:
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
                 IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
-                INGRESS_IP: af566080aee3c4c48ab46233f9c42a5d-1718393804.us-east-1.elb.amazonaws.com
+                INGRESS_IP: a5702e5d1d8bb42a1babc8d410a9dd6f-857755553.us-east-1.elb.amazonaws.com
 
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
