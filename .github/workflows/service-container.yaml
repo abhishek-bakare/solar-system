@@ -202,7 +202,7 @@ jobs:
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
               run: |
-                  kubectl create namespace ${{ vars.NAMESPACE }}
+              
                   kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds \
                    --from-literal=MONGO_URI=${{ env.MONGO_URI }} \
                    --from-literal=MONGO_USERNAME=${{ vars.MONGO_USERNAME }} \
