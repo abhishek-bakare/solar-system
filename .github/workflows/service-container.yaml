@@ -168,7 +168,7 @@ jobs:
             - name: Configure AWS cred
               uses: aws-actions/configure-aws-credentials@v2
               with:
-                aws-access-key-id: AKIA6ODU5VSZTOUP4Q4O
+                aws-access-key-id: AKIAW3MD7D2KHBDJ6ANB
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
                 #role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
                 aws-region: us-east-1  
@@ -197,7 +197,7 @@ jobs:
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
                 IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
-                INGRESS_IP: a5702e5d1d8bb42a1babc8d410a9dd6f-857755553.us-east-1.elb.amazonaws.com
+                INGRESS_IP: ae9bdeffee99348f0ba96d0561ce86e3-1550585352.us-east-1.elb.amazonaws.com
 
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
@@ -215,7 +215,7 @@ jobs:
             # this is how we can define global variables & use it in other jobs
             # here we set only id & above we st up outputs  
             - name: Set app ingress URL
-              id: set-ingress-host-id
+              id: set-ingress-host-id               # need to setup id to define outputs
               run: |
                  echo "APP_INGRESS_HOST=$(kubectl -n ${{ vars.NAMESPACE }} get ingress -o jsonpath="{.items[0].spec.tls[0].hosts[0]}")" >> "$GITHUB_OUTPUT"
 
