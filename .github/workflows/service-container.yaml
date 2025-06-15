@@ -320,7 +320,7 @@ jobs:
       if: github.ref == 'refs/heads/main' 
       name: Integration testing in PROD
       runs-on: ubuntu-latest
-      needs: dev-deploy
+      needs: prod-deploy
       steps:
         - name: Test URL output using curl & JQ
         #this is how we fetch outputs
