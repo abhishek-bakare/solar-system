@@ -5,10 +5,10 @@ metadata:
     kubernetes.io/ingress.class: nginx
     kubernetes.io/tls-acme: "true"
   name: solar-system
-  namespace: ${NAMESPACE}
+  namespace: {NAMESPACE}
 spec:
     rules:
-    - host: solar-system-${NAMESPACE}.${INGRESS_IP}.nip.io
+    - host: ab1e1b6011bba44f5a89e6cbc446a247-64d767485ed08816.elb.us-east-1.amazonaws.com
       http:
         paths:
         - backend:
@@ -20,5 +20,5 @@ spec:
           pathType: Prefix
     tls:
     - hosts:
-      - solar-system-${NAMESPACE}.${INGRESS_IP}.nip.io
+      - ab1e1b6011bba44f5a89e6cbc446a247-64d767485ed08816.elb.us-east-1.amazonaws.com
       secretName: ingress-local-tls
