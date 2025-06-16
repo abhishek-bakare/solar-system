@@ -199,7 +199,7 @@ jobs:
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
                 IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
-                INGRESS_IP: ab1e1b6011bba44f5a89e6cbc446a247-64d767485ed08816.elb.us-east-1.amazonaws.com
+                INGRESS_IP: a5d9097a40741450284686479be67545-8c4a3a33b5aad34a.elb.us-east-1.amazonaws.com
 
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
@@ -265,7 +265,7 @@ jobs:
             - name: Configure AWS cred
               uses: aws-actions/configure-aws-credentials@v2
               with:
-                aws-access-key-id: AKIAW3MD7D2KHBDJ6ANB
+                aws-access-key-id: AKIAW3MECYLBLGQZ3FN3
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
                 #role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
                 aws-region: us-east-1  
@@ -294,7 +294,7 @@ jobs:
               env:
                 NAMESPACE: ${{ vars.NAMESPACE }}             # u can use vars to define values
                 IMAGE: ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }} 
-                INGRESS_IP: ab1e1b6011bba44f5a89e6cbc446a247-64d767485ed08816.elb.us-east-1.amazonaws.com
+                INGRESS_IP: a5d9097a40741450284686479be67545-8c4a3a33b5aad34a.elb.us-east-1.amazonaws.com
 
             # before creating k8 resource we need to pass mongodb secrets as we dfined in the deployments.yaml    
             - name: Creating MongoDB secrets
@@ -329,7 +329,7 @@ jobs:
           run: |
             echo $URL
             echo "-------------------------------------------"
-            curl https://$URL/live -s -k | jq -r .status | grep -i live          
+            curl https://$URL/prod/live -s -k | jq -r .status | grep -i live          
 
 
 
