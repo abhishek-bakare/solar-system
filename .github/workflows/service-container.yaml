@@ -170,7 +170,7 @@ jobs:
             - name: Configure AWS cred
               uses: aws-actions/configure-aws-credentials@v2
               with:
-                aws-access-key-id: AKIAW3MD7D2KHBDJ6ANB
+                aws-access-key-id: AKIAW3MECYLBLGQZ3FN3
                 aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
                 #role-to-assume: arn:aws:iam::058264119838:role/<your-role-name>
                 aws-region: us-east-1  
